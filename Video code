@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suhel • Share • Shop • Earn</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body { font-family: sans-serif; }
+.splash { animation: fade 4s forwards; }
+@keyframes fade { 100% { opacity:0; display:none; } }
+</style>
+</head>
+
+<body class="bg-black text-white">
+
+<!-- SPLASH -->
+<div id="splash" class="splash fixed inset-0 flex items-center justify-center bg-black text-5xl">
+Suhel 🚀
+</div>
+
+<!-- VIDEO INPUT -->
+<input type="file" id="videoInput" accept="video/*" hidden>
+<input type="file" id="profilePicInput" accept="image/*" hidden>
+
+<!-- MAIN -->
+<div id="app" class="hidden max-w-2xl mx-auto">
+
+<!-- HEADER -->
+<div class="flex justify-between p-4 border-b border-green-500">
+<h1 class="text-3xl">Suhel</h1>
+
+<div class="flex gap-3">
+<button onclick="upload()">➕</button>
+<div onclick="openProfile()" id="userBtn" class="bg-green-400 w-8 h-8 flex items-center justify-center rounded-full text-black">S</div>
+</div>
+</div>
+
+<!-- FEED -->
+<div id="feed"></div>
+
+</div>
+
+<!-- PROFILE MODAL -->
+<div id="profileModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center">
+<div class="bg-zinc-900 p-6 rounded-2xl text-center">
+
+<img id="profileImg" class="w-20 h-20 rounded-full mx-auto mb-3">
+
+<input id="nameInput" class="bg-zinc-800 p-2 rounded w-full mb-3" placeholder="Name">
+
+<button onclick="changePic()">Change Photo</button>
+<br><br>
+<button onclick="saveProfile()" class="bg-green-500 px-4 py-2 rounded">Save</button>
+<br><br>
+<button onclick="closeProfile()">Close</button>
+
+</div>
+</div>
+
+<script>
+let user = JSON.parse(localStorage.getItem("user")) || {name:"Suhel", photo:""};
+
+window.onload = () => {
+setTimeout(()=>{
+document.getElementById("splash").style.display="none";
+document.getElementById("app").classList.remove("hidden");
+loadUser();
+},3000);
+};
+
+// LOAD USER
+function loadUser(){
+document.getElementById("userBtn").innerText=user.name[0];
+}
+
+// PROFILE
+function openProfile(){
+document.getElementById("profileModal").classList.remove("hidden");
+document.getElementById("nameInput").value=user.name;
+document.getElementById("profileImg").src=user.photo || "https://via.placeholder.com/100";
+}
+
+function closeProfile(){
+document.getElementById("profileModal").classList.add("hidden");
+}
+
+function changePic(){
+document.getElementById("profilePicInput").click();
+}
+
+document.getElementById("profilePicInput").onchange=(e)=>{
+let file=e.target.files[0];
+let reader=new FileReader();
+reader.onload=()=>{
+user.photo=reader.result;
+document.getElementById("profileImg").src=user.photo;
+};
+reader.readAsDataURL(file);
+};
+
+function saveProfile(){
+user.name=document.getElementById("nameInput").value;
+localStorage.setItem("user",JSON.stringify(user));
+loadUser();
+closeProfile();
+}
+
+// VIDEO UPLOAD
+function upload(){
+document.getElementById("videoInput").click();
+}
+
+document.getElementById("videoInput").onchange=(e)=>{
+let file=e.target.files[0];
+let url=URL.createObjectURL(file);
+
+let post=document.createElement("div");
+post.className="p-4 border-b border-zinc-700";
+
+post.innerHTML=`
+<p>${user.name}</p>
+<video controls class="w-full mt-2">
+<source src="${url}">
+</video>
+`;
+
+document.getElementById("feed").prepend(post);
+};
+</script>
+
+</body>
+</html>
